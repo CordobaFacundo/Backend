@@ -1,6 +1,6 @@
-const fs = require('fs')
+import fs from 'fs'
 
-class ProductManager {
+export default class ProductManager {
     static products;
     id = 0;
 
@@ -110,9 +110,9 @@ async function main() {
     await manager.addProducts(product2);
     await manager.addProducts(product3);
     await manager.addProducts(product4);
-    await manager.deleteProduct(1);
-    await manager.updateProducts(1, { title: "Redragon Kumara K552", description: "Keyboard", price: 15000, thumnail: "link", code: "ABC000", stock: 70 });
-    manager.getProductById(2);
+    // await manager.deleteProduct(1);
+    // await manager.updateProducts(1, { title: "Redragon Kumara K552", description: "Keyboard", price: 15000, thumnail: "link", code: "ABC000", stock: 70 });
+    // manager.getProductById(2);
     const dataOnFile = await manager.getProducts();
     console.log(dataOnFile);
 }
