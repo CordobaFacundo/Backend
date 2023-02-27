@@ -29,41 +29,32 @@ export default class ProductManager {
         }
     }
 
-    getProductById(id) {
-        let prodForId = null;
-        this.products.findIndex((prod) => {
-            if (prod.id === id) {
-                prodForId = prod;
-            }
-        });
-        if (prodForId) {
-            console.log("Product with id: " + id + " is " + prodForId.title);
-        } else {
-            console.log("Id not found!");
-        }
+    async getProductById(id) {
+        const array = await this.getProducts();
+        const prodForId = array.find(
+            (e) => e.id === id,
+        );
+        return prodForId;
     }
 
-    async updateProducts(id, obj) {
-        if (!obj.title || !obj.description || !obj.price || !obj.stock) {
-            console.log("Product information to update incomplete!");
-        } else {
-            let searchCode = this.products.find((prod) => prod.code === obj.code);
-            if (searchCode) {
-                console.log("Error! Repeated code.");
-            } else {
-                const newProd = { ...obj, id: id }
-                this.products[id - 1] = newProd;
-                const prodStr = JSON.stringify(this.products);
-                await fs.promises.writeFile(this.path, prodStr);
-                console.log(`Product with id: ${id} updated.`);
-            }
+    async updateProduct(id, newData) {
+        const prodId = await this.getProductById(id);
+        if(!prodId) {
+          throw new Error('Entidad no encontrada')
         }
+        const array = await this.getProducts()
+        const updatedProduct = {...prodId, ...newData};
+        const arrayFiltered = array.filter(e => e.id !== id);
+        const newArray = [...arrayFiltered, updatedProduct];
+        const prodStr = JSON.stringify(newArray);
+        await fs.promises.writeFile(this.path, prodStr);
+        console.log(`Product with id: ${id} updated.`);
     }
 
     async deleteProduct(id) {
-        const removedProduct = { description: "Removed product.", id: id };
-        this.products[id - 1] = removedProduct;
-        const prodStr = JSON.stringify(this.products);
+        const array = await this.getProducts()
+        array[id - 1] = { description: "Removed product.", id: Number(id) };
+        const prodStr = JSON.stringify(array);
         await fs.promises.writeFile(this.path, prodStr);
         console.log(`Product with id: ${id} removed.`)
     }
@@ -71,10 +62,7 @@ export default class ProductManager {
 
 async function main() {
     const manager = new ProductManager("./products.json");
-    // await manager.deleteProduct(1);
-    // await manager.updateProducts(1, { title: "Redragon Kumara K552", description: "Keyboard", price: 15000, thumnail: "link", code: "ABC000", stock: 70 });
-    // manager.getProductById(2);
     const dataOnFile = await manager.getProducts();
-    console.log(dataOnFile);
+    //console.log(dataOnFile);
 }
 main();
