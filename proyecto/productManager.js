@@ -10,42 +10,14 @@ export default class ProductManager {
 
     async addProducts(product) {
         this.products = await this.getProducts();
-        this.id = this.products.length;
-
-        if (!product.title || !product.description || !product.price || !product.stock) {
-            console.log("Product information incomplete !");
-        } else if (this.id === 0) {
-            // this.pushProduct(product)
-            this.id++;
-            product = { ...product, id: this.id };
-            const nuevos = [...this.products, product];
-            const nuevosStr = JSON.stringify(nuevos);
-            await fs.promises.writeFile(this.path, nuevosStr);
-            console.log(`${product.title} - added to the list!`);
-        } else {
-            let searchCode = this.products.find((prod) => prod.code === product.code);
-            if (searchCode) {
-                console.error("Error! Repeated code.");
-            } else {
-                // this.pushProduct(product)
-                this.id++;
-                product = { ...product, id: this.id };
-                const nuevos = [...this.products, product];
-                const nuevosStr = JSON.stringify(nuevos);
-                await fs.promises.writeFile(this.path, nuevosStr);
-                console.log(`${product.title} - added to the list!`)
-            }
-        }
+        this.id = this.products.length + 1;
+        product = { ...product, id: this.id };
+        const newp = [...this.products, product];
+        const newStr = JSON.stringify(newp);
+        await fs.promises.writeFile(this.path, newStr);
+        console.log(`${product.title} - added to the list!`)
+        return this.id;
     }
-
-    // async pushProduct(product) {
-    //     this.id++;
-    //     product = { ...product, id: this.id };
-    //     const nuevos = [...this.products, product];
-    //     const nuevosStr = JSON.stringify(nuevos);
-    //     await fs.promises.writeFile(this.path, nuevosStr);
-    //     console.log(`${product.title} - agregado a la lista`)
-    // }
 
     async getProducts() {
         try {
@@ -97,19 +69,8 @@ export default class ProductManager {
     }
 }
 
-
-//Productos a agregar
-const product1 = { title: "ASUS NVIDIA GeForce RTX 3050", description: "GPU", price: 130000, thumbnail: "link", code: "ABC001", stock: 50 };
-const product2 = { title: "Gigabyte NVIDIA GeForce RTX 3050", description: "GPU", price: 150000, thumbnail: "link", code: "ABC002", stock: 40 };
-const product3 = { title: "Intel Core I3 10100F", description: "CPU", price: 30000, thumbnail: "link", code: "ABC003", stock: 65 };
-const product4 = { thumbnail: "link", code: "ABC" };
-
 async function main() {
     const manager = new ProductManager("./products.json");
-    await manager.addProducts(product1);
-    await manager.addProducts(product2);
-    await manager.addProducts(product3);
-    await manager.addProducts(product4);
     // await manager.deleteProduct(1);
     // await manager.updateProducts(1, { title: "Redragon Kumara K552", description: "Keyboard", price: 15000, thumnail: "link", code: "ABC000", stock: 70 });
     // manager.getProductById(2);

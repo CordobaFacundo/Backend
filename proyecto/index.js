@@ -1,7 +1,11 @@
 import express from 'express';
 import ProductManager from './productManager.js';
+import { validateProd } from './validateProd.js';
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const manager = new ProductManager("./products.json");
 
 //endpoints
@@ -13,8 +17,8 @@ app.get('/', (req, res) => {
 })
 
 app.get('/products', async (req, res) => {
-    const products = await manager.getProducts();
     const limit = req.query.limit;
+    const products = await manager.getProducts();
     let response = products;
     if (limit && !isNaN(Number(limit))) {
         response = products.slice(0, limit);
@@ -23,8 +27,8 @@ app.get('/products', async (req, res) => {
 })
 
 app.get('/products/:id', async (req, res) => {
-    const products = await manager.getProducts();
     const prodId = req.params.id;
+    const products = await manager.getProducts();
     const response = products.find((e) => e.id === Number(prodId));
     if (response) {
         res.send(response);
@@ -33,6 +37,22 @@ app.get('/products/:id', async (req, res) => {
         <body>
             <h3>Error! Producto con id ${req.params.id} no existe!</h3>
         </body>`);
+    }
+})
+
+app.post('/products', async (req, res) => {
+    const newProd = req.body;
+    const products = await manager.getProducts();
+    const isValid =  await validateProd(newProd, products);
+    if (isValid==true) {
+        const id = await manager.addProducts(newProd);
+        console.log(newProd);
+        res.status(201).send({ id });
+    }else {
+        res.status(400).send({
+            error: "datos invalidos",
+        });
+        return;
     }
 })
 
